@@ -1,0 +1,65 @@
+#!/bin/bash
+#Arjienx Advanced DNSTT Script v0.1.7x Installer 2024
+
+cd ~
+rm -rf install
+architecture=$(uname -m)
+echo "Architecture: $architecture"
+
+if [ ! -d "$HOME/storage" ]; then
+    termux-setup-storage
+fi
+
+version=$(getprop ro.build.version.release)
+if [[ "$version" =~ ^5.* || "$version" =~ ^6.* ]]; then
+    echo "deb https://packages.termux.dev/termux-main-21/ stable main" > "$PREFIX/etc/apt/sources.list"
+    echo "deb https://termux.dev/game-packages-21-bin games stable" > "$PREFIX/etc/apt/sources.list.d/game.list"
+    echo "deb https://termux.dev/science-packages-21-bin science stable" > "$PREFIX/etc/apt/sources.list.d/science.list"
+    clear
+else
+    echo "Current version: $version"
+fi
+
+apt update
+apt upgrade -y openssl curl
+apt install -y dnsutils nano curl
+
+if command -v go &> /dev/null && [ "$(go version | awk '{print $3}' | cut -d 'v' -f 2)" == "go1.21.3" ]; then
+    echo "Go version 1.21.3 is already installed."
+else
+    echo "Installing Go version 1.21.3..."
+    rm -rf "$PREFIX/go"
+    curl --insecure -o go1.21.3.linux-arm64.tar.gz "https://dl.google.com/go/go1.21.3.linux-arm64.tar.gz"
+    tar -C "$PREFIX" -xzf "go1.21.3.linux-arm64.tar.gz"
+    ln -sf "$PREFIX/go/bin/go" "$PREFIX/bin/go"
+    rm -rf "go1.21.3.linux-arm64.tar.gz"
+    echo "Go version 1.21.3 installed."
+fi
+
+rm -rf ~/.bashrc
+echo "alias menu='cd ~ && menu'" > ~/.bashrc
+source ~/.bashrc
+
+echo "" > ../usr/bin/menu
+if uname -m | grep -q '^armv7'; then
+    curl --insecure -o ../usr/bin/menu https://raw.githubusercontent.com/arjienx/termux/main/menu-armv7
+else
+    curl --insecure -o ../usr/bin/menu https://raw.githubusercontent.com/arjienx/termux/main/menu-arm64
+fi
+chmod +x ../usr/bin/menu
+
+for i in {1..2}; do
+  if [ ! -x ../usr/bin/menu ]; then
+    chmod +x ../usr/bin/menu
+  fi
+  sleep 3
+done
+
+echo "Successfully Installed."
+echo
+echo "Arjienx Advanced DNSTT Script v0.1.7x - Termux"
+echo "https://phcorner.net/members/arjienx.1773652/"
+echo
+echo "Architecture: $architecture"
+echo "request access code to arjienx directly."
+echo "type 'menu' to run the dnstt termux script."
