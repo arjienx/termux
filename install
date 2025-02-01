@@ -1,5 +1,5 @@
 #!/bin/bash
-#Arjienx Advanced DNSTT Script v0.1.7x Installer 2024
+#Arjienx Advanced DNSTT Script v0.1.7x 2025
 
 cd ~
 rm -rf install
